@@ -3,6 +3,7 @@ package fetcher
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"news-feed-bot/internal/model"
 	"news-feed-bot/internal/source"
 	"strings"
@@ -25,11 +26,11 @@ type Source interface {
 }
 
 type Fetcher struct {
-	articles ArticleStorage
-	sources  SourceProvider
-
+	articles       ArticleStorage
+	sources        SourceProvider
 	fetchInterval  time.Duration
 	filterKeywords []string
+	log            *slog.Logger
 }
 
 func New(
@@ -37,10 +38,12 @@ func New(
 	sourceProvider SourceProvider,
 	fetchInterval time.Duration,
 	filterKeywords []string,
+	log *slog.Logger,
 ) *Fetcher {
 	return &Fetcher{
 		articles:       articleStorage,
 		sources:        sourceProvider,
+		log:            log,
 		fetchInterval:  fetchInterval,
 		filterKeywords: filterKeywords,
 	}
@@ -48,6 +51,8 @@ func New(
 
 func (f *Fetcher) Start(ctx context.Context) error {
 	const op = "fetcher.Start"
+
+	f.log.Info("fetcher was started successfully")
 
 	ticker := time.NewTicker(f.fetchInterval)
 	defer ticker.Stop()
@@ -70,6 +75,8 @@ func (f *Fetcher) Start(ctx context.Context) error {
 
 func (f *Fetcher) Fetch(ctx context.Context) error {
 	const op = "fetcher.Fetch"
+
+	f.log.Info("fetching sources")
 
 	sources, err := f.sources.Sources(ctx)
 	if err != nil {

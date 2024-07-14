@@ -29,7 +29,6 @@ func main() {
 	log := setupLogger(cfg.Env)
 
 	botAPI, err := tgbotapi.NewBotAPI(cfg.TelegramBotToken)
-
 	if err != nil {
 		log.Error("failed to create bot: %v", err)
 		os.Exit(1)
@@ -52,6 +51,7 @@ func main() {
 		sourceStorage,
 		cfg.FetchInterval,
 		cfg.FilterKeywords,
+		log,
 	)
 
 	n := notifier.New(
@@ -61,6 +61,7 @@ func main() {
 		cfg.NotificationInterval,
 		2*cfg.FetchInterval,
 		cfg.TelegramChannelID,
+		log,
 	)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -87,7 +88,7 @@ func main() {
 				return
 			}
 
-			log.Info("fetcher stopped")
+			log.Info("notifier stopped")
 		}
 	}(ctx)
 

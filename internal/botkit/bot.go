@@ -26,6 +26,8 @@ func New(log *slog.Logger, api *tgbotapi.BotAPI) *Bot {
 func (b *Bot) Run(ctx context.Context) error {
 	const op = "botkit.Run"
 
+	b.log.Info("bot was started successfully")
+
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -60,11 +62,11 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 		}
 	}()
 
-	var view ViewFunc
-
-	if !update.Message.IsCommand() {
+	if update.Message == nil || !update.Message.IsCommand() {
 		return
 	}
+
+	var view ViewFunc
 
 	cmd := update.Message.Command()
 

@@ -6,6 +6,7 @@ import (
 	"github.com/go-shiori/go-readability"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"io"
+	"log/slog"
 	"net/http"
 	"news-feed-bot/internal/botkit/markup"
 	"news-feed-bot/internal/model"
@@ -30,6 +31,7 @@ type Notifier struct {
 	sendInterval     time.Duration
 	lookupTimeWindow time.Duration
 	channelID        int64
+	log              *slog.Logger
 }
 
 func New(
@@ -39,6 +41,7 @@ func New(
 	sendInterval time.Duration,
 	lookupTimeWindow time.Duration,
 	channelID int64,
+	log *slog.Logger,
 ) *Notifier {
 	return &Notifier{
 		articles:         articleProvider,
@@ -47,11 +50,14 @@ func New(
 		sendInterval:     sendInterval,
 		lookupTimeWindow: lookupTimeWindow,
 		channelID:        channelID,
+		log:              log,
 	}
 }
 
 func (n *Notifier) Start(ctx context.Context) error {
 	const op = "notifier.Start"
+
+	n.log.Info("notifier was started successfully")
 
 	ticker := time.NewTicker(n.sendInterval)
 	defer ticker.Stop()
@@ -75,6 +81,9 @@ func (n *Notifier) Start(ctx context.Context) error {
 func (n *Notifier) SelectAndSendArticle(ctx context.Context) error {
 	const op = "notifier.SelectAndSendArticle"
 
+	n.log.Info("selecting and sending article")
+
+	// nothing returns!!!
 	topArticles, err := n.articles.NotPostedArticles(ctx, time.Now().Add(-n.lookupTimeWindow), 1)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
