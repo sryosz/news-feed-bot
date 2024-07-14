@@ -38,11 +38,16 @@ func (s *SourcePostgresStorage) Sources(ctx context.Context) ([]model.Source, er
 	}
 
 	var sources []model.Source
-	if err := stmt.Scan(&sources); err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+
+	for stmt.Next() {
+		var source model.Source
+		if err := stmt.Scan(&source.ID, &source.Name, &source.FeedURL, &source.CreatedAt, &source.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		sources = append(sources, source)
 	}
 
-	return sources, fmt.Errorf("%s: %w", op, err)
+	return sources, nil
 }
 
 func (s *SourcePostgresStorage) SourceById(ctx context.Context, id int64) (*model.Source, error) {
