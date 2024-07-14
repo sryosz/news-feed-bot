@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+// TODO: ensure or stmt and rows are closed
+
 type ArticlePostgresStorage struct {
 	db *sql.DB
 }
@@ -62,20 +64,40 @@ func (s *ArticlePostgresStorage) NotPostedArticles(
 	const op = "storage.article.NotPostedArticles"
 
 	stmt, err := s.db.Prepare(`SELECT * FROM articles
-         WHERE posted_at IS NULL AND published_at > $1::timestamp
-         ORDER BY  published_at DESC LIMIT $2`)
+         WHERE posted_at IS NULL 
+         ORDER BY published_at DESC LIMIT $1`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, limit)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
 
 	var articles []model.Article
 
-	rows, err := stmt.QueryContext(ctx, since, limit)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+	// Iterate over the rows
+	for rows.Next() {
+		var article model.Article
+		if err := rows.Scan(
+			&article.ID,
+			&article.SourceID,
+			&article.Title,
+			&article.Link,
+			&article.Summary,
+			&article.PublishedAt,
+			&article.CreatedAt,
+			&article.PostedAt,
+		); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		articles = append(articles, article)
 	}
 
-	if err := rows.Scan(&articles); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
