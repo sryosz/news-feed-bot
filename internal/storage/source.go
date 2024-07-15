@@ -77,7 +77,7 @@ func (s *SourcePostgresStorage) SourceById(ctx context.Context, id int64) (*mode
 func (s *SourcePostgresStorage) Add(ctx context.Context, source model.Source) (int64, error) {
 	const op = "storage.source.Add"
 
-	stmt, err := s.db.Prepare("INSERT INTO sources(name, feed_url, created_at) VALUES ($1. $2, $3) RETURNING id")
+	stmt, err := s.db.Prepare("INSERT INTO sources(name, feed_url, created_at) VALUES ($1, $2, $3) RETURNING id")
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
