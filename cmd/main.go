@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log/slog"
 	"news-feed-bot/internal/bot"
+	"news-feed-bot/internal/bot/middleware"
 	"news-feed-bot/internal/botkit"
 	"news-feed-bot/internal/config"
 	fetcher "news-feed-bot/internal/fetcher"
@@ -69,7 +70,18 @@ func main() {
 
 	newsBot := botkit.New(log, botAPI)
 	newsBot.RegisterCmdView("start", bot.ViewCmdStart())
-	newsBot.RegisterCmdView("addsource", bot.ViewCmdAddSource(sourceStorage))
+	newsBot.RegisterCmdView("addsource",
+		middleware.AdminOnly(
+			cfg.TelegramChannelID,
+			bot.ViewCmdAddSource(sourceStorage),
+		),
+	)
+	newsBot.RegisterCmdView("listsources",
+		middleware.AdminOnly(
+			cfg.TelegramChannelID,
+			bot.ViewCmdListSources(sourceStorage),
+		),
+	)
 
 	go func(ctx context.Context) {
 		if err := f.Start(ctx); err != nil {
