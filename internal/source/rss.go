@@ -23,7 +23,6 @@ func New(m model.Source) RSSSource {
 
 func (r RSSSource) Fetch(ctx context.Context) ([]model.Item, error) {
 	const op = "source.rss.Fetch"
-	// TODO: setup logger and log everything
 	feed, err := r.loadFeed(ctx, r.URL)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -46,8 +45,6 @@ func (r RSSSource) Fetch(ctx context.Context) ([]model.Item, error) {
 }
 
 func (r RSSSource) loadFeed(ctx context.Context, url string) (*rss.Feed, error) {
-	const op = "source.rss.loadFeed"
-	// TODO: setup logger and log everything
 	var (
 		feedCh  = make(chan *rss.Feed)
 		errorCh = make(chan error)
@@ -65,9 +62,9 @@ func (r RSSSource) loadFeed(ctx context.Context, url string) (*rss.Feed, error) 
 
 	select {
 	case <-ctx.Done():
-		return nil, fmt.Errorf("%s: %w", op, ctx.Err())
+		return nil, ctx.Err()
 	case err := <-errorCh:
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, err
 	case feed := <-feedCh:
 		return feed, nil
 	}

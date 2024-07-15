@@ -112,8 +112,6 @@ func (f *Fetcher) Fetch(ctx context.Context) error {
 }
 
 func (f *Fetcher) processItems(ctx context.Context, source Source, items []model.Item) error {
-	const op = "fetcher.processItems"
-
 	for _, item := range items {
 		item.Date = item.Date.UTC()
 
@@ -128,7 +126,7 @@ func (f *Fetcher) processItems(ctx context.Context, source Source, items []model
 			Summary:     item.Summary,
 			PublishedAt: item.Date,
 		}); err != nil {
-			return fmt.Errorf("%s: %w", op, err)
+			return err
 		}
 	}
 

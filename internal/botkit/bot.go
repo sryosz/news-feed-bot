@@ -54,11 +54,9 @@ func (b *Bot) RegisterCmdView(cmd string, view ViewFunc) {
 }
 
 func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
-	const op = "botkit.handleUpdate"
-
 	defer func() {
 		if p := recover(); p != nil {
-			b.log.Info("%s: %w", op, p)
+			b.log.Info("%w", p)
 		}
 	}()
 
@@ -78,12 +76,12 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 	view = cmdView
 
 	if err := view(ctx, b.api, update); err != nil {
-		b.log.Info("%s: %w", op, err)
+		b.log.Info("%w", err)
 
 		if _, err := b.api.Send(
 			tgbotapi.NewMessage(update.Message.Chat.ID, "internal error"),
 		); err != nil {
-			b.log.Info("%s: %w", op, err)
+			b.log.Info("%w", err)
 		}
 	}
 }

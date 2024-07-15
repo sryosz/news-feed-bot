@@ -108,8 +108,6 @@ func (n *Notifier) SelectAndSendArticle(ctx context.Context) error {
 }
 
 func (n *Notifier) extractSummary(ctx context.Context, article model.Article) (string, error) {
-	const op = "notifier.extractSummary"
-
 	var r io.Reader
 
 	if article.Summary != "" {
@@ -117,7 +115,7 @@ func (n *Notifier) extractSummary(ctx context.Context, article model.Article) (s
 	} else {
 		resp, err := http.Get(article.Link)
 		if err != nil {
-			return "", fmt.Errorf("%s: %w", op, err)
+			return "", err
 		}
 		defer resp.Body.Close()
 
@@ -126,12 +124,12 @@ func (n *Notifier) extractSummary(ctx context.Context, article model.Article) (s
 
 	doc, err := readability.FromReader(r, nil)
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", err
 	}
 
 	summary, err := n.summarizer.Summarize(ctx, cleanExtraEmptyLines(doc.TextContent))
 	if err != nil {
-		return "", fmt.Errorf("%s: %w", op, err)
+		return "", err
 	}
 
 	return "\n\n" + summary, nil
@@ -142,8 +140,6 @@ func cleanExtraEmptyLines(text string) string {
 }
 
 func (n *Notifier) sendArticle(article model.Article, summary string) error {
-	const op = "notifier.sendArticle"
-
 	const msgFormat = "*%s*%s\n\n%s"
 
 	msg := tgbotapi.NewMessage(n.channelID, fmt.Sprintf(
@@ -156,7 +152,7 @@ func (n *Notifier) sendArticle(article model.Article, summary string) error {
 
 	_, err := n.bot.Send(msg)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return err
 	}
 
 	return nil
