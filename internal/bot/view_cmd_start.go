@@ -11,7 +11,12 @@ func ViewCmdStart() botkit.ViewFunc {
 	const op = "bot.view_cmd_start.ViewCmdStart"
 
 	return func(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
-		if _, err := bot.Send(tgbotapi.NewMessage(update.FromChat().ID, "Hello")); err != nil {
+		// TODO: remake from hardcoded list of available commands to for loop with joining
+		msgTxt := fmt.Sprintf("Greetings!" +
+			"\n\nThis bot is designed for scheduled publication\nof articles from specified sources" +
+			"\n\nType /commands	 to see available commands")
+
+		if _, err := bot.Send(tgbotapi.NewMessage(update.FromChat().ID, msgTxt)); err != nil {
 			return fmt.Errorf("%s: %w", op, err)
 		}
 

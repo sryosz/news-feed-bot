@@ -68,6 +68,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
+	//separate registering views for bot somehow
 	newsBot := botkit.New(log, botAPI)
 	newsBot.RegisterCmdView("start", bot.ViewCmdStart())
 	newsBot.RegisterCmdView("addsource",
@@ -80,6 +81,12 @@ func main() {
 		middleware.AdminOnly(
 			cfg.TelegramChannelID,
 			bot.ViewCmdListSources(sourceStorage),
+		),
+	)
+	newsBot.RegisterCmdView("commands",
+		middleware.AdminOnly(
+			cfg.TelegramChannelID,
+			bot.ViewCmdListCommands(newsBot.CmdViews),
 		),
 	)
 
