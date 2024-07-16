@@ -10,7 +10,7 @@ import (
 
 type Bot struct {
 	api      *tgbotapi.BotAPI
-	cmdViews map[string]ViewFunc
+	CmdViews map[string]ViewFunc
 	log      *slog.Logger
 }
 
@@ -46,11 +46,11 @@ func (b *Bot) Run(ctx context.Context) error {
 }
 
 func (b *Bot) RegisterCmdView(cmd string, view ViewFunc) {
-	if b.cmdViews == nil {
-		b.cmdViews = make(map[string]ViewFunc)
+	if b.CmdViews == nil {
+		b.CmdViews = make(map[string]ViewFunc)
 	}
 
-	b.cmdViews[cmd] = view
+	b.CmdViews[cmd] = view
 }
 
 func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
@@ -68,7 +68,7 @@ func (b *Bot) handleUpdate(ctx context.Context, update tgbotapi.Update) {
 
 	cmd := update.Message.Command()
 
-	cmdView, ok := b.cmdViews[cmd]
+	cmdView, ok := b.CmdViews[cmd]
 	if !ok {
 		return
 	}
