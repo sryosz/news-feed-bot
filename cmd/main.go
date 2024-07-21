@@ -89,6 +89,12 @@ func main() {
 			bot.ViewCmdListCommands(newsBot.CmdViews),
 		),
 	)
+	newsBot.RegisterCmdView("deletesource",
+		middleware.AdminOnly(
+			cfg.TelegramChannelID,
+			bot.ViewCmdDeleteSource(sourceStorage),
+		),
+	)
 
 	go func(ctx context.Context) {
 		if err := f.Start(ctx); err != nil {
