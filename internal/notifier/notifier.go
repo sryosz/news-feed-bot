@@ -29,7 +29,7 @@ type Notifier struct {
 	summarizer       Summarizer
 	bot              *tgbotapi.BotAPI
 	sendInterval     time.Duration
-	lookupTimeWindow time.Duration
+	articleRelevance time.Duration
 	channelID        int64
 	log              *slog.Logger
 }
@@ -39,7 +39,7 @@ func New(
 	summarizer Summarizer,
 	bot *tgbotapi.BotAPI,
 	sendInterval time.Duration,
-	lookupTimeWindow time.Duration,
+	articleRelevance time.Duration,
 	channelID int64,
 	log *slog.Logger,
 ) *Notifier {
@@ -48,7 +48,7 @@ func New(
 		summarizer:       summarizer,
 		bot:              bot,
 		sendInterval:     sendInterval,
-		lookupTimeWindow: lookupTimeWindow,
+		articleRelevance: articleRelevance,
 		channelID:        channelID,
 		log:              log,
 	}
@@ -83,8 +83,7 @@ func (n *Notifier) SelectAndSendArticle(ctx context.Context) error {
 
 	n.log.Info("selecting and sending article")
 
-	// nothing returns!!!
-	topArticles, err := n.articles.NotPostedArticles(ctx, time.Now().Add(-n.lookupTimeWindow), 1)
+	topArticles, err := n.articles.NotPostedArticles(ctx, time.Now().Add(-n.articleRelevance), 1)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

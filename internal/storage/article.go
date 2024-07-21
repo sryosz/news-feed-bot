@@ -64,14 +64,14 @@ func (s *ArticlePostgresStorage) NotPostedArticles(
 	const op = "storage.article.NotPostedArticles"
 
 	stmt, err := s.db.Prepare(`SELECT * FROM articles
-         WHERE posted_at IS NULL 
-         ORDER BY published_at DESC LIMIT $1`)
+         WHERE posted_at IS NULL AND published_at > $1 
+         ORDER BY published_at DESC LIMIT $2`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.QueryContext(ctx, limit)
+	rows, err := stmt.QueryContext(ctx, since, limit)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

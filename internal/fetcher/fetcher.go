@@ -95,12 +95,12 @@ func (f *Fetcher) Fetch(ctx context.Context) error {
 
 			items, err := source.Fetch(ctx)
 			if err != nil {
-				//TODO: log error
+				f.log.Error(err.Error())
 				return
 			}
 
 			if err := f.processItems(ctx, source, items); err != nil {
-				//TODO: log error
+				f.log.Error(err.Error())
 				return
 			}
 		}(rssSource)

@@ -60,7 +60,7 @@ func main() {
 		summary.New(cfg.OpenAIKey, cfg.OpenAIPrompt),
 		botAPI,
 		cfg.NotificationInterval,
-		2*cfg.FetchInterval,
+		10*cfg.NotificationInterval,
 		cfg.TelegramChannelID,
 		log,
 	)
