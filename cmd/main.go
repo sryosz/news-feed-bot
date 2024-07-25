@@ -96,6 +96,13 @@ func main() {
 		),
 	)
 
+	newsBot.RegisterCmdView("listarticles",
+		middleware.AdminOnly(
+			cfg.TelegramChannelID,
+			bot.ViewCmdListArticles(articleStorage),
+		),
+	)
+
 	go func(ctx context.Context) {
 		if err := f.Start(ctx); err != nil {
 			if !errors.Is(err, context.Canceled) {
