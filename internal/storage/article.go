@@ -121,3 +121,37 @@ func (s *ArticlePostgresStorage) MarkAsPosted(ctx context.Context, id int64) err
 
 	return nil
 }
+
+func (s *ArticlePostgresStorage) ArticlesBySourceID(ctx context.Context, storageID int64) ([]model.Article, error) {
+	const op = "storage.article.ArticlesByStorageID"
+
+	stmt, err := s.db.Prepare("SELECT id, source_id, title, link, summary, published_at, created_at FROM articles WHERE source_id = $1")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var articles []model.Article
+	rows, err := stmt.QueryContext(ctx, storageID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	for rows.Next() {
+		var article model.Article
+		if err := rows.Scan(
+			&article.ID,
+			&article.SourceID,
+			&article.Title,
+			&article.Link,
+			&article.Summary,
+			&article.PublishedAt,
+			&article.CreatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		articles = append(articles, article)
+	}
+
+	return articles, nil
+}
