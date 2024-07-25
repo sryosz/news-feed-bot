@@ -14,14 +14,14 @@ type SourceStorage interface {
 }
 
 func ViewCmdAddSource(storage SourceStorage) botkit.ViewFunc {
+	const op = "bot.ViewCmdAddSource"
+
 	type addSourceArgs struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
 	}
 
 	return func(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
-		const op = "bot.ViewCmdAddSource"
-
 		args, err := botkit.ParseJSON[addSourceArgs](update.Message.CommandArguments())
 		if err != nil {
 			return fmt.Errorf("%s: %w", op, err)

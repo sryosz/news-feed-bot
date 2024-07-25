@@ -12,13 +12,13 @@ type SourceRemover interface {
 }
 
 func ViewCmdDeleteSource(storage SourceRemover) botkit.ViewFunc {
+	const op = "bot.ViewCmdAddSource"
+
 	type deleteSourceArgs struct {
 		ID int64 `json:"id"`
 	}
 
 	return func(ctx context.Context, bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
-		const op = "bot.ViewCmdAddSource"
-
 		args, err := botkit.ParseJSON[deleteSourceArgs](update.Message.CommandArguments())
 		if err != nil {
 			return fmt.Errorf("%s: %w", op, err)
